@@ -47,14 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Column(
         children: [
-          _buildNewWidget(),
+          _buildSelectNumberWidget(),
           _buildGridSelector(),
           Expanded(
-            child: ListView.builder(
+            child: GridView.builder(
               itemCount: gridList.length,
-              itemBuilder: (context, index) {
-                return _buildGridItem(index);
-              },
+              itemBuilder: (context, index) => _buildGridItem(index),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
             ),
           ),
         ],
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildNewWidget() {
+  Widget _buildSelectNumberWidget() {
     return Container(
       margin: EdgeInsets.all(16.0),
       padding: EdgeInsets.all(16.0),
@@ -97,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 16.0),
             Text(
-              'Number List: ${numberList.join(", ")}',
+              'Numbers: ${numberList.join("  ")}',
               style: TextStyle(fontSize: 18.0),
             ),
           ],
@@ -110,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        Text('Rows:'),
         DropdownButton<int>(
           value: selectedRows,
           items: _buildDropdownItems(),
@@ -131,7 +133,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         ElevatedButton(
           onPressed: () => _addGrid(selectedRows, selectedColumns),
-          child: Text('Add Grid'),
+          child: Text('Add Card'),
+        ),
+        ElevatedButton(
+          onPressed: () => _deleteLastGrid(),
+          child: Text('Remove Card'),
         ),
       ],
     );
@@ -151,13 +157,27 @@ class _MyHomePageState extends State<MyHomePage> {
     final gridData = gridList[index];
     final cellSize = 40.0;
     final gridWidth = gridData.columns * cellSize;
-
+    //Define and initialize text controller for each element of the grid
+    List<List<TextEditingController>> textfieldsControllers = List.generate(
+      gridData.rows, // Number of rows
+      (index) => List.generate(
+        gridData.columns, // Number of columns
+        (index) => (TextEditingController()),
+      ),
+    );
+    //Fill the controller's text with the corresponding value of the structure
+    for (int i = 0; i < gridData.rows; i++) {
+      for (int j = 0; j < gridData.columns; j++) {
+        textfieldsControllers[i][j].text =
+            gridData.gridValues[i][j]; //corresponding value grid
+      }
+    }
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text('Grid ${index + 1} - ${gridData.rows}x${gridData.columns}'),
+            Text('Card ${index + 1} - ${gridData.rows}x${gridData.columns}'),
             SizedBox(height: 8),
             Container(
               height: gridData.rows * cellSize,
@@ -182,28 +202,39 @@ class _MyHomePageState extends State<MyHomePage> {
                           : Colors.transparent,
                       border: Border.all(color: Colors.black),
                     ),
-                    child: Center(
-                      child: TextField(
-                        controller: TextEditingController(
-                          text: cellValue,
-                        ),
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(
-                              2), // Limit input to 2 characters
-                        ],
-                        onChanged: (text) {
-                          // Update the grid value when valid text changes
-                          if (text.isNotEmpty) {
-                            final int parsedValue = int.parse(text);
-                            if (parsedValue >= 1 && parsedValue <= 90) {
-                              _updateGridValue(index, itemIndex, text);
-                            }
+                    child: TextField(
+                      style: TextStyle(
+                          color: (cellValue != '' &&
+                                  numberList.contains(int.parse(cellValue)))
+                              ? Colors.white
+                              : Colors.black),
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(
+                            2), // Limit input to 2 characters
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          if (newValue.text.isEmpty) {
+                            // If the new value is empty, accept the change (allow clearing)
+                            return newValue;
                           }
-                        },
-                      ),
+                          final parsed = int.tryParse(newValue.text);
+                          if (parsed == null || parsed <= 0 || parsed > 90) {
+                            // If the new value is not valid, reject the change
+                            return oldValue;
+                          }
+                          // Otherwise, accept the change
+                          return newValue;
+                        }),
+                      ],
+                      //Add the correspondinf controller from the list
+                      controller:
+                          textfieldsControllers[itemIndex ~/ gridData.columns]
+                              [itemIndex % gridData.columns],
+                      onChanged: (text) {
+                        _updateGridValue(index, itemIndex, text);
+                      },
                     ),
                   );
                 },
@@ -211,15 +242,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _deleteGrid(index),
-                  child: Text('Delete Grid'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -258,17 +280,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _deleteGrid(int index) {
+  void _deleteLastGrid() {
     setState(() {
-      gridList.removeAt(index);
+      gridList.removeLast();
     });
   }
 
   void _updateGridValue(int gridIndex, int itemIndex, String value) {
-    setState(() {
-      //final reversedValue = value.split('').reversed.join('');
-      gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
-          [itemIndex % gridList[gridIndex].columns] = value;
-    });
+    gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
+        [itemIndex % gridList[gridIndex].columns] = value;
   }
 }

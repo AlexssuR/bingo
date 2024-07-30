@@ -1,20 +1,11 @@
+import 'package:bingo/components/bingo_card.dart';
+import 'package:bingo/components/bingo_card_options.dart';
+import 'package:bingo/components/number_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'grid_data.dart';
 
 void main() {
   runApp(MyApp());
-}
-
-class GridData {
-  int rows;
-  int columns;
-  List<List<String>> gridValues;
-
-  GridData(this.rows, this.columns)
-      : gridValues = List.generate(
-          rows,
-          (i) => List.filled(columns, ""),
-        );
 }
 
 class MyApp extends StatelessWidget {
@@ -39,106 +30,67 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController numberController = TextEditingController();
   List<GridData> gridList = [];
   final int squareSize = 50;
-  int selectedRows = 2;
-  int selectedColumns = 2;
+  int selectedRows = 5;
+  int selectedColumns = 10;
+  int itemsPerRow = 2;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          _buildSelectNumberWidget(),
-          _buildGridSelector(),
+          SelectNumberWidget(
+            numberController: numberController,
+            numberList: numberList,
+            addNumber: _addNumber,
+            deleteNumber: _deleteNumber,
+          ),
+          BingoCardOptions(
+              selectedRows: selectedRows,
+              selectedColumns: selectedColumns,
+              addGrid: _addGrid,
+              dropDownListItem: _buildDropdownItems(),
+              setRowsNumber: _setRowsNumber,
+              setColumnsNumber: _setColumnsNumber,
+              deleteGrid: _deleteLastGrid),
           Expanded(
-            child: ListView.builder(
-              itemCount: gridList.length,
-              itemBuilder: (context, index) {
-                return _buildGridItem(index);
-              },
+            child: SingleChildScrollView(
+              child: Column(
+                children: List.generate(
+                  (gridList.length / itemsPerRow)
+                      .ceil(), // Number of rows needed
+                  (rowIndex) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: List.generate(
+                          itemsPerRow,
+                          (itemIndex) {
+                            final currentIndex =
+                                rowIndex * itemsPerRow + itemIndex;
+                            if (currentIndex < gridList.length) {
+                              return Expanded(
+                                  child: BingoCard(
+                                      index: currentIndex,
+                                      gridList: gridList,
+                                      numberList: numberList,
+                                      updateGridValue: _updateGridValue));
+                            } else {
+                              return Expanded(
+                                  child:
+                                      Container()); // Placeholder for empty spaces
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSelectNumberWidget() {
-    return Container(
-      margin: EdgeInsets.all(16.0),
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: numberController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Enter a number',
-              ),
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _addNumber,
-                  child: Text('Add'),
-                ),
-                ElevatedButton(
-                  onPressed: _deleteNumber,
-                  child: Text('Delete'),
-                ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Numbers: ${numberList.join("  ")}',
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGridSelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text('Rows:'),
-        DropdownButton<int>(
-          value: selectedRows,
-          items: _buildDropdownItems(),
-          onChanged: (value) {
-            setState(() {
-              selectedRows = value!;
-            });
-          },
-        ),
-        Text('Columns:'),
-        DropdownButton<int>(
-          value: selectedColumns,
-          items: _buildDropdownItems(),
-          onChanged: (value) {
-            setState(() {
-              selectedColumns = value!;
-            });
-          },
-        ),
-        ElevatedButton(
-          onPressed: () => _addGrid(selectedRows, selectedColumns),
-          child: Text('Add Card'),
-        ),
-        ElevatedButton(
-          onPressed: () => _deleteLastGrid(),
-          child: Text('Remove Card'),
-        ),
-      ],
     );
   }
 
@@ -148,78 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
       (index) => DropdownMenuItem<int>(
         value: index + 1,
         child: Text((index + 1).toString()),
-      ),
-    );
-  }
-
-  Widget _buildGridItem(int index) {
-    final gridData = gridList[index];
-    final cellSize = 40.0;
-    final gridWidth = gridData.columns * cellSize;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Text('Card ${index + 1} - ${gridData.rows}x${gridData.columns}'),
-            SizedBox(height: 8),
-            Container(
-              height: gridData.rows * cellSize,
-              width: gridWidth,
-              child: GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridData.columns,
-                  childAspectRatio: 1.0,
-                ),
-                itemBuilder: (context, itemIndex) {
-                  final cellValue =
-                      gridData.gridValues[itemIndex ~/ gridData.columns]
-                          [itemIndex % gridData.columns];
-                  return Container(
-                    height: cellSize,
-                    width: cellSize,
-                    decoration: BoxDecoration(
-                      color: (cellValue != '' &&
-                              numberList.contains(int.parse(cellValue)))
-                          ? Colors.blue[900]
-                          : Colors.transparent,
-                      border: Border.all(color: Colors.black),
-                    ),
-                    child: Center(
-                      child: TextField(
-                        style: TextStyle(
-                            color: (cellValue != '' &&
-                                    numberList.contains(int.parse(cellValue)))
-                                ? Colors.white
-                                : Colors.black),
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(
-                              2), // Limit input to 2 characters
-                        ],
-                        onChanged: (text) {
-                          // Update the grid value when valid text changes
-                          if (text.isNotEmpty) {
-                            final int parsedValue = int.parse(text);
-                            if (parsedValue >= 0 && parsedValue <= 99) {
-                              _updateGridValue(index, itemIndex, text);
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  );
-                },
-                itemCount: gridData.rows * gridData.columns,
-              ),
-            ),
-            SizedBox(height: 8),
-          ],
-        ),
       ),
     );
   }
@@ -262,11 +142,20 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _updateGridValue(int gridIndex, int itemIndex, String value) {
+  void _setColumnsNumber(value) {
     setState(() {
-      //final reversedValue = value.split('').reversed.join('');
-      gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
-          [itemIndex % gridList[gridIndex].columns] = value;
+      selectedColumns = value!;
     });
+  }
+
+  void _setRowsNumber(value) {
+    setState(() {
+      selectedRows = value!;
+    });
+  }
+
+  void _updateGridValue(int gridIndex, int itemIndex, String value) {
+    gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
+        [itemIndex % gridList[gridIndex].columns] = value;
   }
 }
