@@ -1,44 +1,35 @@
 import 'package:flutter/material.dart';
 
 class BingoCardOptions extends StatelessWidget {
-  final int selectedRows;
-  final int selectedColumns;
-  final void Function(int rows, int columns) addGrid;
+  final VoidCallback addGrid;
   final List<DropdownMenuItem<int>> dropDownListItem;
-  final void Function(int?) setRowsNumber;
-  final void Function(int?) setColumnsNumber;
   final VoidCallback deleteGrid;
+  final int itemsPerRow;
+  final void Function(int?) setItemsPerRow;
 
-  BingoCardOptions({
-    super.key,
-    required this.selectedRows,
-    required this.selectedColumns,
-    required this.addGrid,
-    required this.dropDownListItem,
-    required this.setRowsNumber,
-    required this.setColumnsNumber,
-    required this.deleteGrid,
-  });
+  BingoCardOptions(
+      {super.key,
+      required this.addGrid,
+      required this.dropDownListItem,
+      required this.deleteGrid,
+      required this.itemsPerRow,
+      required this.setItemsPerRow});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text('Rows:'),
+        //Add line selector
+        Text('Card for Line:'),
         DropdownButton<int>(
-          value: selectedRows,
+          value: itemsPerRow,
           items: dropDownListItem,
-          onChanged: setRowsNumber,
+          onChanged: setItemsPerRow,
         ),
-        Text('Columns:'),
-        DropdownButton<int>(
-          value: selectedColumns,
-          items: dropDownListItem,
-          onChanged: setColumnsNumber,
-        ),
+
         ElevatedButton(
-          onPressed: () => addGrid(selectedRows, selectedColumns),
+          onPressed: addGrid,
           child: Text('Add Card'),
         ),
         ElevatedButton(

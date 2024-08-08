@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bingo/components/bingo_card.dart';
 import 'package:bingo/components/bingo_card_options.dart';
 import 'package:bingo/components/number_selector.dart';
@@ -29,10 +31,22 @@ class _MyHomePageState extends State<MyHomePage> {
   List<int> numberList = [];
   TextEditingController numberController = TextEditingController();
   List<GridData> gridList = [];
-  final int squareSize = 50;
-  int selectedRows = 5;
-  int selectedColumns = 10;
-  int itemsPerRow = 2;
+  late int cardTotalRows;
+  late int cardTotalColumns;
+
+  int itemsPerRow = 1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    String? envRows = Platform.environment['CARD_ROWS'];
+    String? envColumns = Platform.environment['CARD_COLUMNS'];
+    // If the environment variables are not set, use the default values
+
+    cardTotalRows = envRows != null ? int.tryParse(envRows) ?? 4 : 4;
+    cardTotalColumns = envColumns != null ? int.tryParse(envColumns) ?? 9 : 9;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +58,15 @@ class _MyHomePageState extends State<MyHomePage> {
             numberList: numberList,
             addNumber: _addNumber,
             deleteNumber: _deleteNumber,
+            deleteAllNumbers: _deleteAllNumbers,
           ),
           BingoCardOptions(
-              selectedRows: selectedRows,
-              selectedColumns: selectedColumns,
-              addGrid: _addGrid,
-              dropDownListItem: _buildDropdownItems(),
-              setRowsNumber: _setRowsNumber,
-              setColumnsNumber: _setColumnsNumber,
-              deleteGrid: _deleteLastGrid),
+            addGrid: _addGrid,
+            dropDownListItem: _buildDropdownItems(),
+            deleteGrid: _deleteLastGrid,
+            itemsPerRow: itemsPerRow,
+            setItemsPerRow: _setItemsPerRow,
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -130,27 +144,32 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _addGrid(int rows, int columns) {
+  void _deleteAllNumbers() {
+    // Check if the number list is not empty
+    if (numberList.isNotEmpty) {
+      setState(() {
+        numberList.clear();
+      });
+    }
+  }
+
+  void _addGrid() {
     setState(() {
-      gridList.add(GridData(rows, columns));
+      gridList.add(GridData(cardTotalRows, cardTotalColumns));
     });
   }
 
   void _deleteLastGrid() {
     setState(() {
-      gridList.removeLast();
+      if (gridList.isNotEmpty) {
+        gridList.removeLast();
+      }
     });
   }
 
-  void _setColumnsNumber(value) {
+  void _setItemsPerRow(value) {
     setState(() {
-      selectedColumns = value!;
-    });
-  }
-
-  void _setRowsNumber(value) {
-    setState(() {
-      selectedRows = value!;
+      itemsPerRow = value!;
     });
   }
 

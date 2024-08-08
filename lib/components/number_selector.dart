@@ -5,6 +5,7 @@ class SelectNumberWidget extends StatelessWidget {
   final List<int> numberList;
   final VoidCallback addNumber;
   final VoidCallback deleteNumber;
+  final VoidCallback deleteAllNumbers;
 
   SelectNumberWidget({
     super.key,
@@ -12,6 +13,7 @@ class SelectNumberWidget extends StatelessWidget {
     required this.numberList,
     required this.addNumber,
     required this.deleteNumber,
+    required this.deleteAllNumbers,
   });
 
   @override
@@ -45,6 +47,10 @@ class SelectNumberWidget extends StatelessWidget {
                 ElevatedButton(
                   onPressed: deleteNumber,
                   child: Text('Delete'),
+                ),
+                ElevatedButton(
+                  onPressed: deleteAllNumbers,
+                  child: Text('Delete All'),
                 ),
               ],
             ),
