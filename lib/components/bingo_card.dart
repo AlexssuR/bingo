@@ -38,7 +38,7 @@ class BingoCard extends StatelessWidget {
     }
     return Column(
       children: [
-        Text('Card ${index + 1} - ${gridData.rows}x${gridData.columns}'),
+        Text('Card ${index + 1}'),
         SizedBox(height: 8),
         Container(
           height: gridData.rows * cellSize,
