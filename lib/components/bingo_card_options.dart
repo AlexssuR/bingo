@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 class BingoCardOptions extends StatelessWidget {
   final VoidCallback addGrid;
   final List<DropdownMenuItem<int>> dropDownListItem;
   final VoidCallback deleteGrid;
   final int itemsPerRow;
-  final void Function(int?) setItemsPerRow;
+  final VoidCallback increaseItemsPerRow;
+  final VoidCallback decreaseItemsPerRow;
 
-  BingoCardOptions(
-      {super.key,
-      required this.addGrid,
-      required this.dropDownListItem,
-      required this.deleteGrid,
-      required this.itemsPerRow,
-      required this.setItemsPerRow});
+  BingoCardOptions({
+    super.key,
+    required this.addGrid,
+    required this.dropDownListItem,
+    required this.deleteGrid,
+    required this.itemsPerRow,
+    required this.increaseItemsPerRow,
+    required this.decreaseItemsPerRow,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        //Add line selector
-        Text('Card for Line:'),
-        DropdownButton<int>(
-          value: itemsPerRow,
-          items: dropDownListItem,
-          onChanged: setItemsPerRow,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Icon(Icons.remove),
+              onPressed: decreaseItemsPerRow,
+            ),
+            Text('Items per row: ' + itemsPerRow.toString()),
+            IconButton(icon: Icon(Icons.add), onPressed: increaseItemsPerRow),
+          ],
         ),
-
         ElevatedButton(
           onPressed: addGrid,
           child: Text('Add Card'),

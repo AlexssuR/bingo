@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'grid_data.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(BingoApp());
 }
 
-class MyApp extends StatelessWidget {
+class BingoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,6 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int itemsPerRow = 1;
 
+  late int maxItemsPerRow;
+  late int minItemsPerRow;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     cardTotalRows = envRows != null ? int.tryParse(envRows) ?? 4 : 4;
     cardTotalColumns = envColumns != null ? int.tryParse(envColumns) ?? 9 : 9;
+
+    String? minItems = Platform.environment['MIN_ITEMS'];
+    String? maxItems = Platform.environment['MAX_ITEMS'];
+
+    minItemsPerRow = minItems != null ? int.tryParse(minItems) ?? 1 : 1;
+    maxItemsPerRow = maxItems != null ? int.tryParse(maxItems) ?? 4 : 4;
   }
 
   @override
@@ -65,7 +74,8 @@ class _MyHomePageState extends State<MyHomePage> {
             dropDownListItem: _buildDropdownItems(),
             deleteGrid: _deleteLastGrid,
             itemsPerRow: itemsPerRow,
-            setItemsPerRow: _setItemsPerRow,
+            increaseItemsPerRow: _increaseItemsPerRow,
+            decreaseItemsPerRow: _decreaseItemsPerRow,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -167,9 +177,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _setItemsPerRow(value) {
+  void _increaseItemsPerRow() {
     setState(() {
-      itemsPerRow = value!;
+      if (itemsPerRow < maxItemsPerRow) {
+        itemsPerRow++;
+      }
+    });
+  }
+
+  void _decreaseItemsPerRow() {
+    setState(() {
+      if (itemsPerRow > minItemsPerRow) {
+        itemsPerRow--;
+      }
     });
   }
 
