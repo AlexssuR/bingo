@@ -107,23 +107,3 @@ class BingoCard extends StatelessWidget {
     );
   }
 }
-/* final int selectedRows;
-  final int selectedColumns;
-  final void Function(int rows, int columns) addGrid;
-  final List<DropdownMenuItem<int>> dropDownListItem;
-  final void Function(int?) setRowsNumber;
-  final void Function(int?) setColumnsNumber;
-  final VoidCallback deleteGrid;
-
-  CardOptions({
-    super.key,
-    required this.selectedRows,
-    required this.selectedColumns,
-    required this.addGrid,
-    required this.dropDownListItem,
-    required this.setRowsNumber,
-    required this.setColumnsNumber,
-    required this.deleteGrid,
-  }); */
-
- 
