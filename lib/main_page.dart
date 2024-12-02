@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bingo/components/bingo_card.dart';
 import 'package:bingo/components/bingo_card_options.dart';
 import 'package:bingo/components/number_selector.dart';
+import 'package:bingo/master_page.dart';
 import 'package:flutter/material.dart';
 import 'grid_data.dart';
 
@@ -43,59 +44,110 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          SelectNumberWidget(
-            numberController: numberController,
-            numberList: numberList,
-            addNumber: _addNumber,
-            deleteNumber: _deleteNumber,
-            deleteAllNumbers: _deleteAllNumbers,
-          ),
-          BingoCardOptions(
-            addGrid: _addGrid,
-            dropDownListItem: _buildDropdownItems(),
-            deleteGrid: _deleteLastGrid,
-            itemsPerRow: itemsPerRow,
-            increaseItemsPerRow: _increaseItemsPerRow,
-            decreaseItemsPerRow: _decreaseItemsPerRow,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(
-                  (gridList.length / itemsPerRow)
-                      .ceil(), // Number of rows needed
-                  (rowIndex) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: List.generate(
-                          itemsPerRow,
-                          (itemIndex) {
-                            final currentIndex =
-                                rowIndex * itemsPerRow + itemIndex;
-                            if (currentIndex < gridList.length) {
-                              return Expanded(
-                                  child: BingoCard(
+          // Main content
+          Column(
+            children: [
+              SelectNumberWidget(
+                numberController: numberController,
+                numberList: numberList,
+                addNumber: _addNumber,
+                deleteNumber: _deleteNumber,
+                deleteAllNumbers: _deleteAllNumbers,
+              ),
+              BingoCardOptions(
+                addGrid: _addGrid,
+                dropDownListItem: _buildDropdownItems(),
+                deleteGrid: _deleteLastGrid,
+                itemsPerRow: itemsPerRow,
+                increaseItemsPerRow: _increaseItemsPerRow,
+                decreaseItemsPerRow: _decreaseItemsPerRow,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: List.generate(
+                      (gridList.length / itemsPerRow).ceil(),
+                      (rowIndex) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: List.generate(
+                              itemsPerRow,
+                              (itemIndex) {
+                                final currentIndex =
+                                    rowIndex * itemsPerRow + itemIndex;
+                                if (currentIndex < gridList.length) {
+                                  return Expanded(
+                                    child: BingoCard(
                                       index: currentIndex,
                                       gridList: gridList,
                                       numberList: numberList,
-                                      updateGridValue: _updateGridValue));
-                            } else {
-                              return Expanded(
-                                  child:
-                                      Container()); // Placeholder for empty spaces
-                            }
+                                      updateGridValue: _updateGridValue,
+                                    ),
+                                  );
+                                } else {
+                                  return Expanded(child: Container());
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Top-right corner link
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: TextButton(
+              onPressed: () async {
+                bool? confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Are you sure?"),
+                      content: Text(
+                          "If you decide to be the Master you cannot go back, all your progress will be lost"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false); // User cancels
                           },
+                          child: Text("Nah, I'm good"),
                         ),
-                      ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true); // User confirms
+                          },
+                          child: Text("Absolutely!"),
+                        ),
+                      ],
                     );
                   },
+                );
+
+                if (confirm == true) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MasterPage()),
+                  );
+                }
+              },
+              child: Text(
+                "Go to MasterPage",
+                style: TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );
