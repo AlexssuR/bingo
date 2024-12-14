@@ -35,6 +35,11 @@ class SelectNumberWidget extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'Enter a number',
               ),
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  addNumber();
+                }
+              },
             ),
             SizedBox(height: 16.0),
             Row(
