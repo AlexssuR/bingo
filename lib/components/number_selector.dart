@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SelectNumberWidget extends StatelessWidget {
+class SelectNumberWidget extends StatefulWidget {
   final TextEditingController numberController;
   final List<int> numberList;
   final VoidCallback addNumber;
@@ -17,6 +17,19 @@ class SelectNumberWidget extends StatelessWidget {
   });
 
   @override
+  _SelectNumberWidgetState createState() => _SelectNumberWidgetState();
+}
+
+class _SelectNumberWidgetState extends State<SelectNumberWidget> {
+  final FocusNode focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(16.0),
@@ -30,14 +43,16 @@ class SelectNumberWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              controller: numberController,
+              controller: widget.numberController,
               keyboardType: TextInputType.number,
+              focusNode: focusNode,
               decoration: InputDecoration(
                 labelText: 'Enter a number',
               ),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  addNumber();
+                  widget.addNumber();
+                  focusNode.requestFocus(); // Keep the focus on the TextField
                 }
               },
             ),
@@ -46,22 +61,25 @@ class SelectNumberWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: addNumber,
+                  onPressed: () {
+                    widget.addNumber();
+                    focusNode.requestFocus(); // Keep the focus on the TextField
+                  },
                   child: Text('Add'),
                 ),
                 ElevatedButton(
-                  onPressed: deleteNumber,
+                  onPressed: widget.deleteNumber,
                   child: Text('Delete'),
                 ),
                 ElevatedButton(
-                  onPressed: deleteAllNumbers,
+                  onPressed: widget.deleteAllNumbers,
                   child: Text('Delete All'),
                 ),
               ],
             ),
             SizedBox(height: 16.0),
             Text(
-              'Numbers: ${numberList.join("  ")}',
+              'Numbers: ${widget.numberList.join("  ")}',
               style: TextStyle(fontSize: 18.0),
             ),
           ],
