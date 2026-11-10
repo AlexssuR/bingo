@@ -1,12 +1,19 @@
 import 'dart:io';
+
 import 'package:bingo/components/bingo_card.dart';
 import 'package:bingo/components/bingo_card_options.dart';
 import 'package:bingo/components/number_selector.dart';
 import 'package:bingo/master_page.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'grid_data.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
@@ -26,19 +33,11 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-
-    String? envRows = Platform.environment['CARD_ROWS'];
-    String? envColumns = Platform.environment['CARD_COLUMNS'];
     // If the environment variables are not set, use the default values
-
-    cardTotalRows = envRows != null ? int.tryParse(envRows) ?? 4 : 4;
-    cardTotalColumns = envColumns != null ? int.tryParse(envColumns) ?? 9 : 9;
-
-    String? minItems = Platform.environment['MIN_ITEMS'];
-    String? maxItems = Platform.environment['MAX_ITEMS'];
-
-    minItemsPerRow = minItems != null ? int.tryParse(minItems) ?? 1 : 1;
-    maxItemsPerRow = maxItems != null ? int.tryParse(maxItems) ?? 4 : 4;
+    cardTotalRows = 3;
+    cardTotalColumns = 9;
+    minItemsPerRow = 1;
+    maxItemsPerRow = 4;
   }
 
   @override
@@ -73,25 +72,22 @@ class _MainPageState extends State<MainPage> {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
-                            children: List.generate(
-                              itemsPerRow,
-                              (itemIndex) {
-                                final currentIndex =
-                                    rowIndex * itemsPerRow + itemIndex;
-                                if (currentIndex < gridList.length) {
-                                  return Expanded(
-                                    child: BingoCard(
-                                      index: currentIndex,
-                                      gridList: gridList,
-                                      numberList: numberList,
-                                      updateGridValue: _updateGridValue,
-                                    ),
-                                  );
-                                } else {
-                                  return Expanded(child: Container());
-                                }
-                              },
-                            ),
+                            children: List.generate(itemsPerRow, (itemIndex) {
+                              final currentIndex =
+                                  rowIndex * itemsPerRow + itemIndex;
+                              if (currentIndex < gridList.length) {
+                                return Expanded(
+                                  child: BingoCard(
+                                    index: currentIndex,
+                                    gridList: gridList,
+                                    numberList: numberList,
+                                    updateGridValue: _updateGridValue,
+                                  ),
+                                );
+                              } else {
+                                return Expanded(child: Container());
+                              }
+                            }),
                           ),
                         );
                       },
@@ -101,7 +97,7 @@ class _MainPageState extends State<MainPage> {
               ),
             ],
           ),
-          // Top-right corner link
+          // Bottom-right corner link
           Positioned(
             bottom: 16,
             right: 16,
@@ -111,21 +107,22 @@ class _MainPageState extends State<MainPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text("Are you sure?"),
-                      content: Text(
-                          "If you decide to be the Master you cannot go back, all your progress will be lost"),
+                      title: const Text("Are you sure?"),
+                      content: const Text(
+                        "If you decide to be the Master you cannot go back, all your progress will be lost",
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(false); // User cancels
                           },
-                          child: Text("Nah, I'm good"),
+                          child: const Text("Nah, I'm good"),
                         ),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(true); // User confirms
                           },
-                          child: Text("Absolutely!"),
+                          child: const Text("Absolutely!"),
                         ),
                       ],
                     );
@@ -139,7 +136,7 @@ class _MainPageState extends State<MainPage> {
                   );
                 }
               },
-              child: Text(
+              child: const Text(
                 "Go to MasterPage",
                 style: TextStyle(
                   color: Colors.blue,
@@ -147,7 +144,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -229,7 +226,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _updateGridValue(int gridIndex, int itemIndex, String value) {
-    gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
-        [itemIndex % gridList[gridIndex].columns] = value;
+    gridList[gridIndex].gridValues[itemIndex ~/
+            gridList[gridIndex].columns][itemIndex %
+            gridList[gridIndex].columns] =
+        value;
   }
 }
