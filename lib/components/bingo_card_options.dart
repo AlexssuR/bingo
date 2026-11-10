@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
 
 class BingoCardOptions extends StatelessWidget {
   final VoidCallback addGrid;
@@ -9,7 +8,7 @@ class BingoCardOptions extends StatelessWidget {
   final VoidCallback increaseItemsPerRow;
   final VoidCallback decreaseItemsPerRow;
 
-  BingoCardOptions({
+  const BingoCardOptions({
     super.key,
     required this.addGrid,
     required this.dropDownListItem,
@@ -28,21 +27,18 @@ class BingoCardOptions extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Icon(Icons.remove),
+              icon: const Icon(Icons.remove),
               onPressed: decreaseItemsPerRow,
             ),
-            Text('Items per row: ' + itemsPerRow.toString()),
-            IconButton(icon: Icon(Icons.add), onPressed: increaseItemsPerRow),
+            Text('Items per row: $itemsPerRow'),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: increaseItemsPerRow,
+            ),
           ],
         ),
-        ElevatedButton(
-          onPressed: addGrid,
-          child: Text('Add Card'),
-        ),
-        ElevatedButton(
-          onPressed: deleteGrid,
-          child: Text('Remove Card'),
-        ),
+        ElevatedButton(onPressed: addGrid, child: const Text('Add Card')),
+        ElevatedButton(onPressed: deleteGrid, child: const Text('Remove Card')),
       ],
     );
   }
