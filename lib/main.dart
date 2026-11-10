@@ -7,6 +7,8 @@ void main() {
 }
 
 class BingoApp extends StatelessWidget {
+  const BingoApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
