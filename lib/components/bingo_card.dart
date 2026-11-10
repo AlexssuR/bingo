@@ -9,7 +9,7 @@ class BingoCard extends StatelessWidget {
   final List<int> numberList;
   final void Function(int, int, String) updateGridValue;
 
-  BingoCard(
+  const BingoCard(
       {super.key,
       required this.index,
       required this.gridList,
@@ -19,7 +19,7 @@ class BingoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gridData = gridList[index];
-    final cellSize = 40.0;
+    const cellSize = 40.0;
     final gridWidth = gridData.columns * cellSize;
     //Define and initialize text controller for each element of the grid
     List<List<TextEditingController>> textfieldsControllers = List.generate(
@@ -39,8 +39,8 @@ class BingoCard extends StatelessWidget {
     return Column(
       children: [
         Text('Card ${index + 1}'),
-        SizedBox(height: 8),
-        Container(
+        const SizedBox(height: 8),
+        SizedBox(
           height: gridData.rows * cellSize,
           width: gridWidth,
           child: GridView.builder(
@@ -102,7 +102,7 @@ class BingoCard extends StatelessWidget {
             itemCount: gridData.rows * gridData.columns,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }
