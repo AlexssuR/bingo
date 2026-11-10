@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'package:bingo/components/bingo_card.dart';
-import 'package:bingo/components/bingo_card_options.dart';
 import 'package:bingo/components/number_selector.dart';
 import 'package:flutter/material.dart';
+
 import 'grid_data.dart';
 
 class MasterPage extends StatefulWidget {
+  const MasterPage({super.key});
+
   @override
   _MasterPageState createState() => _MasterPageState();
 }
@@ -13,12 +14,17 @@ class MasterPage extends StatefulWidget {
 class _MasterPageState extends State<MasterPage> {
   List<int> numberList = [];
   TextEditingController numberController = TextEditingController();
-
-  List<GridData> gridList = [new GridData(10, 9, useProgressiveNumbers: true)];
+  List<GridData> gridList = [GridData(10, 9, useProgressiveNumbers: true)];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    numberController.dispose();
+    super.dispose();
   }
 
   @override
@@ -34,11 +40,13 @@ class _MasterPageState extends State<MasterPage> {
             deleteAllNumbers: _deleteAllNumbers,
           ),
           Expanded(
-              child: BingoCard(
-                  index: 0,
-                  gridList: gridList,
-                  numberList: numberList,
-                  updateGridValue: _updateGridValue)),
+            child: BingoCard(
+              index: 0,
+              gridList: gridList,
+              numberList: numberList,
+              updateGridValue: _updateGridValue,
+            ),
+          ),
         ],
       ),
     );
@@ -80,7 +88,9 @@ class _MasterPageState extends State<MasterPage> {
   }
 
   void _updateGridValue(int gridIndex, int itemIndex, String value) {
-    gridList[gridIndex].gridValues[itemIndex ~/ gridList[gridIndex].columns]
-        [itemIndex % gridList[gridIndex].columns] = value;
+    gridList[gridIndex].gridValues[itemIndex ~/
+            gridList[gridIndex].columns][itemIndex %
+            gridList[gridIndex].columns] =
+        value;
   }
 }
