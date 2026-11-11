@@ -1,15 +1,15 @@
-import 'dart:io';
+ 
 
 import 'package:bingo/components/bingo_card.dart';
 import 'package:bingo/components/bingo_card_options.dart';
 import 'package:bingo/components/number_selector.dart';
 import 'package:bingo/master_page.dart';
-import 'package:flutter/gestures.dart';
+ 
 import 'package:flutter/material.dart';
 
 import 'grid_data.dart';
 
-import 'package:url_launcher/url_launcher.dart';
+ 
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -132,7 +132,7 @@ class _MainPageState extends State<MainPage> {
                 if (confirm == true) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MasterPage()),
+                    MaterialPageRoute(builder: (context) => const MasterPage()),
                   );
                 }
               },

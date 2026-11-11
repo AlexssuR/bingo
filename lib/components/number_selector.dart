@@ -7,7 +7,7 @@ class SelectNumberWidget extends StatefulWidget {
   final VoidCallback deleteNumber;
   final VoidCallback deleteAllNumbers;
 
-  SelectNumberWidget({
+  const SelectNumberWidget({
     super.key,
     required this.numberController,
     required this.numberList,
@@ -32,8 +32,8 @@ class _SelectNumberWidgetState extends State<SelectNumberWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(16.0),
-      padding: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black),
       ),
@@ -46,7 +46,7 @@ class _SelectNumberWidgetState extends State<SelectNumberWidget> {
               controller: widget.numberController,
               keyboardType: TextInputType.number,
               focusNode: focusNode,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Enter a number',
               ),
               onSubmitted: (value) {
@@ -56,7 +56,7 @@ class _SelectNumberWidgetState extends State<SelectNumberWidget> {
                 }
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -65,22 +65,22 @@ class _SelectNumberWidgetState extends State<SelectNumberWidget> {
                     widget.addNumber();
                     focusNode.requestFocus(); // Keep the focus on the TextField
                   },
-                  child: Text('Add'),
+                  child: const Text('Add'),
                 ),
                 ElevatedButton(
                   onPressed: widget.deleteNumber,
-                  child: Text('Delete'),
+                  child: const Text('Delete'),
                 ),
                 ElevatedButton(
                   onPressed: widget.deleteAllNumbers,
-                  child: Text('Delete All'),
+                  child: const Text('Delete All'),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Text(
               'Numbers: ${widget.numberList.join("  ")}',
-              style: TextStyle(fontSize: 18.0),
+              style: const TextStyle(fontSize: 18.0),
             ),
           ],
         ),

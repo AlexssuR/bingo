@@ -3,7 +3,7 @@ import 'package:bingo/main_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(BingoApp());
+  runApp(const BingoApp());
 }
 
 class BingoApp extends StatelessWidget {
@@ -15,7 +15,7 @@ class BingoApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainPage(),
+      home: const MainPage(),
     );
   }
 }
